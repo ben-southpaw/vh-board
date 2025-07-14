@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import { elasticOut } from 'svelte/easing';
 	import { fetchTickets, type Ticket } from '../lib/ticketsApi';
 	import { supabase } from '../lib/supabaseClient';
 	import { fetchVotes, addVote, removeVote, subscribeToVotes, type Vote } from '../lib/votesApi';
@@ -195,11 +197,12 @@
 				<div class="column-title">{column.title}</div>
 				<div class="tickets-list">
 					{#if ticketsByColumn[column.title]?.length}
-						{#each ticketsByColumn[column.title] as ticket}
+						{#each ticketsByColumn[column.title].sort((a, b) => getVoteCount(b) - getVoteCount(a)) as ticket (ticket.id)}
 							<div
 								class="ticket-card {editingTicketId === ticket.id ? 'editing' : ''}"
 								role="group"
 								on:dblclick={() => startEdit(ticket)}
+								animate:flip="{{duration: 800, easing: elasticOut}}"
 							>
 								{#if editingTicketId === ticket.id}
 									<div
