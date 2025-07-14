@@ -143,6 +143,68 @@ body {
 	gap: uiScale(10);
 }
 
+.ticket-votes {
+	position: absolute;
+	bottom: uiScale(10);
+	right: uiScale(14);
+	display: flex;
+	align-items: center;
+	z-index: 1;
+}
+
+.vote-btn {
+	display: flex;
+	align-items: center;
+	gap: uiScale(6);
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: uiScale(2) uiScale(8);
+	border-radius: uiScale(18);
+	transition: background 0.12s;
+	font-size: uiScale(18);
+	outline: none;
+}
+
+.vote-btn:hover,
+.vote-btn:focus {
+	background: #fbeaf1;
+}
+
+.heart-emoji {
+	font-size: uiScale(20);
+	transition: filter 0.12s, color 0.12s, transform 0.12s;
+	color: #bbb;
+}
+
+.heart-emoji.has-votes {
+	color: #e74c3c;
+	transform: scale(1.18);
+}
+
+.vote-btn.has-votes .heart-emoji {
+	color: #e74c3c;
+}
+
+
+.vote-btn:active .heart-emoji {
+	filter: brightness(0.8);
+}
+
+.vote-count {
+	font-size: uiScale(15);
+	margin-left: uiScale(2);
+	color: #b04a6a;
+	font-weight: 600;
+}
+
+@media (max-width: 600px) {
+	.ticket-votes {
+		bottom: uiScale(8);
+		right: uiScale(8);
+	}
+}
+
 
 .ticket-card:not(.editing) {
 	display: flex;

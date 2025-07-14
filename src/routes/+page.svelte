@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { fetchTickets, type Ticket } from '../lib/ticketsApi';
 	import { supabase } from '../lib/supabaseClient';
+	import { fetchVotes, addVote, removeVote, subscribeToVotes, type Vote } from '../lib/votesApi';
 
 	// Define available columns
 	const columns = [{ title: 'Good' }, { title: 'Bad' }, { title: 'Actions' }, { title: 'Ideas' }];
@@ -9,6 +10,68 @@
 	let ticketsByColumn: Record<string, Ticket[]> = {};
 	let loading = true;
 	let error: string | null = null;
+
+	// Voting state
+	let votes: Vote[] = [];
+
+	function getCurrentVoterId() {
+		let id = localStorage.getItem('voter_id');
+		if (!id) {
+			id = crypto.randomUUID();
+			localStorage.setItem('voter_id', id);
+		}
+		console.log('[vote] voter_id:', id);
+		return id;
+	}
+
+	function getVoteCount(ticket: Ticket) {
+		return votes.filter(v => v.ticket_id === ticket.id).length;
+	}
+
+	function hasVoted(ticket: Ticket) {
+		const voterId = getCurrentVoterId();
+		return votes.some(v => v.ticket_id === ticket.id && v.voter_id === voterId);
+	}
+
+	async function toggleVote(ticket: Ticket) {
+		const voterId = getCurrentVoterId();
+		console.log('[vote] toggleVote for ticket', ticket.id, 'by', voterId, 'hasVoted:', hasVoted(ticket));
+		if (hasVoted(ticket)) {
+			try {
+				console.log('[vote] Removing vote...');
+				await removeVote(ticket.id, voterId);
+				console.log('[vote] Removed vote, loading votes...');
+				await loadVotes();
+				console.log('[vote] Votes after removal:', votes);
+			} catch (e) {
+				error = (e as Error).message || 'Failed to remove vote.';
+				console.error('[vote] Remove vote error:', e);
+			}
+		} else {
+			try {
+				console.log('[vote] Adding vote...');
+				await addVote(ticket.id, voterId);
+				console.log('[vote] Added vote, loading votes...');
+				await loadVotes();
+				console.log('[vote] Votes after add:', votes);
+			} catch (e) {
+				error = (e as Error).message || 'Failed to add vote.';
+				console.error('[vote] Add vote error:', e);
+			}
+		}
+	}
+
+	async function loadVotes() {
+		try {
+			console.log('[vote] Fetching votes...');
+			const newVotes = await fetchVotes();
+			votes = [...newVotes]; // force Svelte reactivity
+			console.log('[vote] Loaded votes (assigned):', votes);
+		} catch (e) {
+			error = (e as Error).message || 'Failed to load votes.';
+			console.error('[vote] Load votes error:', e);
+		}
+	}
 
 	// Inline editing state
 	let editingTicketId: string | null = null;
@@ -116,7 +179,23 @@
   }
 }
 
-onMount(refreshTickets);
+let votesUnsubscribe: (() => void) | null = null;
+
+onMount(async () => {
+  await refreshTickets();
+  await loadVotes();
+  votesUnsubscribe = subscribeToVotes(() => {
+    console.log('[vote] Realtime update received, reloading votes');
+    loadVotes();
+  });
+});
+
+onDestroy(() => {
+  if (votesUnsubscribe) {
+    console.log('[vote] Unsubscribing from votes realtime');
+    votesUnsubscribe();
+  }
+});
 </script>
 
 {#if loading}
@@ -124,7 +203,8 @@ onMount(refreshTickets);
 {:else if error}
 	<div style="color:red; text-align:center; padding:2rem;">{error}</div>
 {:else}
-	<div class="board-grid">
+	<div style="font-size:12px; color:#888; margin-bottom: 0.5rem;">[debug] votes array length: {votes.length}</div>
+<div class="board-grid">
 		{#each columns as column}
 			<div class="column">
 				<div class="column-title">{column.title}</div>
@@ -162,11 +242,21 @@ onMount(refreshTickets);
 									</div>
 								{:else}
 									<button class="remove-ticket-btn" aria-label="Remove ticket" on:click={() => removeTicket(ticket)}>&times;</button>
-<div class="ticket-title">{ticket.title}</div>
+									<div class="ticket-title">{ticket.title}</div>
 									{#if ticket.content}
 										<div class="ticket-content">{ticket.content}</div>
 									{/if}
 								{/if}
+								<div class="ticket-votes">
+									<button
+										class="vote-btn {getVoteCount(ticket) > 0 ? 'has-votes' : ''}"
+										aria-label="Vote for this ticket"
+										on:click={() => toggleVote(ticket)}
+									>
+										<span class="heart-emoji {getVoteCount(ticket) > 0 ? 'has-votes' : ''}">{getVoteCount(ticket) > 0 ? '❤️' : '🤍'}</span>
+										<span class="vote-count">{getVoteCount(ticket)}</span>
+									</button>
+								</div>
 							</div>
 						{/each}
 					{/if}
