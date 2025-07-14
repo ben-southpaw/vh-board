@@ -6,7 +6,6 @@
 	import { supabase } from '../lib/supabaseClient';
 	import { fetchVotes, addVote, removeVote, subscribeToVotes, type Vote } from '../lib/votesApi';
 
-	// Define available columns
 	const columns = [{ title: 'Good' }, { title: 'Bad' }, { title: 'Actions' }, { title: 'Ideas' }];
 
 	let ticketsByColumn: Record<string, Ticket[]> = {};
@@ -56,7 +55,7 @@
 	async function loadVotes() {
 		try {
 			const newVotes = await fetchVotes();
-			votes = [...newVotes]; // force Svelte reactivity
+			votes = [...newVotes]; // force reactivity
 		} catch (e) {
 			error = (e as Error).message || 'Failed to load votes.';
 		}
@@ -72,7 +71,7 @@
 		try {
 			ticketsByColumn = await fetchTickets();
 		} catch (e) {
-			error = e.message || 'Failed to load tickets.';
+			error = (e as Error).message || 'Failed to load tickets.';
 		} finally {
 			loading = false;
 		}
