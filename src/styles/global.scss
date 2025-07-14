@@ -1,0 +1,242 @@
+/* Global styles for the collaborative board app */
+
+// --- Orientation-based UI Scaling System ---
+$ui-baseline-width: 1440;
+$ui-baseline-height: 700;
+
+html {
+	--ui-scale: calc(100vw / #{$ui-baseline-width});
+}
+
+@media (orientation: portrait) {
+	html {
+		--ui-scale: calc(100vh / #{$ui-baseline-height});
+	}
+}
+
+@function uiScale($px) {
+	@return calc(#{$px} * var(--ui-scale));
+}
+
+body {
+	font-family: system-ui, sans-serif;
+	margin: 0;
+	background: linear-gradient(135deg, #e3e9f7 0%, #f8f9fa 100%);
+	color: #222;
+	min-height: 100vh;
+	font-size: 1rem;
+}
+
+.board-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(uiScale(220), 1fr));
+	gap: uiScale(32);
+	padding: uiScaleH(48) uiScale(32) uiScaleH(32) uiScale(32);
+	max-width: uiScale(1200);
+	margin: 0 auto;
+	margin-top: uiScale(50);
+}
+
+.column {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: uiScale(12);
+	padding: 0;
+	margin: 0;
+	min-height: uiScale(350);
+	background: none;
+	border: none;
+	box-shadow: none;
+}
+
+.column-title {
+	font-weight: 600;
+	font-size: uiScale(20);
+	margin: 1rem;
+	letter-spacing: 0.01em;
+	color: #3b4252;
+}
+
+.tickets-list {
+	display: flex;
+	flex-direction: column;
+	gap: uiScale(18);
+	margin-bottom: uiScale(8);
+}
+
+.add-ticket-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: uiScale(16) auto 0 auto;
+	width: uiScale(44);
+	height: uiScale(44);
+	border-radius: 50%;
+	border: none;
+	background: #e3e9f7;
+	color: #3b4252;
+	font-size: uiScale(28);
+	font-weight: 600;
+	box-shadow: 0 2px 8px rgba(60,80,120,0.06);
+	cursor: pointer;
+	transition: background 0.15s, box-shadow 0.15s;
+}
+
+.add-ticket-btn:hover, .add-ticket-btn:focus {
+	background: #d0d8ee;
+	box-shadow: 0 4px 16px rgba(60,80,120,0.13);
+	outline: none;
+}
+
+
+.ticket-card {
+	background: #f2f5fa;
+	border-radius: uiScale(8);
+	box-shadow: 0 1px 4px rgba(60, 80, 120, 0.06);
+	padding: uiScale(16) uiScale(12);
+	font-size: uiScale(16);
+	color: #263249;
+	border: 1px solid #e3e9f7;
+	transition: box-shadow 0.18s;
+	min-height: uiScale(200);
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: uiScale(10);
+}
+
+.ticket-card.editing {
+	box-shadow: 0 4px 24px rgba(60,80,120,0.18);
+	border: none;
+}
+
+
+@media (max-width: 600px) {
+	.ticket-card, .ticket-card.editing {
+		flex-direction: column;
+		gap: uiScale(8);
+	}
+}
+
+
+.ticket-title, .ticket-title.editing {
+	font-weight: 600;
+	font-size: uiScale(17);
+	margin-bottom: 0;
+	word-break: break-word;
+	color: #222;
+	background: none;
+	border: none;
+	box-shadow: none;
+	font-family: inherit;
+	padding: 0;
+	outline: none;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.ticket-content, .ticket-content.editing {
+	font-size: uiScale(15);
+	color: #4a5670;
+	margin-top: 0;
+	margin-left: uiScale(12);
+	white-space: pre-line;
+	word-break: break-word;
+	background: none;
+	border: none;
+	box-shadow: none;
+	font-family: inherit;
+	padding: 0;
+	outline: none;
+	display: inline-block;
+	vertical-align: middle;
+	resize: none;
+}
+@media (max-width: 600px) {
+	.ticket-content, .ticket-content.editing {
+		margin-left: 0;
+	}
+}
+
+
+.ticket-title.editing::placeholder,
+.ticket-content.editing::placeholder {
+	color: #444;
+	opacity: 1;
+}
+
+
+.add-ticket-form {
+	display: flex;
+	flex-direction: column;
+	gap: uiScale(8);
+	width: 100%;
+	margin: uiScale(10) 0 0 0;
+	padding: uiScale(12);
+	background: #f9fbfd;
+	border-radius: uiScale(8);
+	box-shadow: 0 1px 6px rgba(60,80,120,0.05);
+}
+
+.add-ticket-title, .add-ticket-content {
+	width: 100%;
+	padding: 0;
+	border: none;
+	border-radius: 0;
+	font-size: uiScale(15);
+	background: none;
+	color: #444;
+	resize: none;
+	box-shadow: none;
+	font-family: inherit;
+	outline: none;
+}
+
+
+.add-ticket-title:focus, .add-ticket-content:focus {
+	outline: none !important;
+	box-shadow: none !important;
+	border: none !important;
+	background: none;
+}
+
+
+
+.add-ticket-actions {
+	display: flex;
+	gap: uiScale(8);
+	justify-content: flex-end;
+}
+
+.add-ticket-save {
+	background: #3b7ddd;
+	color: #fff;
+	border: none;
+	border-radius: uiScale(6);
+	padding: uiScale(7) uiScale(18);
+	font-weight: 600;
+	font-size: uiScale(15);
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.add-ticket-save:hover {
+	background: #2256a3;
+}
+
+.add-ticket-cancel {
+	background: none;
+	color: #3b4252;
+	border: none;
+	font-size: uiScale(15);
+	padding: uiScale(7) uiScale(12);
+	cursor: pointer;
+	border-radius: uiScale(6);
+	transition: background 0.13s;
+}
+
+.add-ticket-cancel:hover {
+	background: #e3e9f7;
+}
+
