@@ -16,12 +16,17 @@
 	let votes: Vote[] = [];
 
 	function getCurrentVoterId() {
-		let id = localStorage.getItem('voter_id');
-		if (!id) {
-			id = crypto.randomUUID();
-			localStorage.setItem('voter_id', id);
+		// Only access localStorage in the browser environment
+		if (typeof window !== 'undefined') {
+			let id = localStorage.getItem('voter_id');
+			if (!id) {
+				id = crypto.randomUUID();
+				localStorage.setItem('voter_id', id);
+			}
+			return id;
 		}
-		return id;
+		// Return a placeholder for SSR
+		return 'ssr-placeholder';
 	}
 
 	function getVoteCount(ticket: Ticket) {
