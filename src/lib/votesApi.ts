@@ -8,7 +8,6 @@ export function subscribeToVotes(onChange: () => void) {
       'postgres_changes',
       { event: '*', schema: 'public', table: 'votes' },
       payload => {
-        console.log('[vote] Realtime event:', payload.eventType, payload);
         onChange();
       }
     )

@@ -20,56 +20,43 @@
 			id = crypto.randomUUID();
 			localStorage.setItem('voter_id', id);
 		}
-		console.log('[vote] voter_id:', id);
 		return id;
 	}
 
 	function getVoteCount(ticket: Ticket) {
-		return votes.filter(v => v.ticket_id === ticket.id).length;
+		return votes.filter((v) => v.ticket_id === ticket.id).length;
 	}
 
 	function hasVoted(ticket: Ticket) {
 		const voterId = getCurrentVoterId();
-		return votes.some(v => v.ticket_id === ticket.id && v.voter_id === voterId);
+		return votes.some((v) => v.ticket_id === ticket.id && v.voter_id === voterId);
 	}
 
 	async function toggleVote(ticket: Ticket) {
 		const voterId = getCurrentVoterId();
-		console.log('[vote] toggleVote for ticket', ticket.id, 'by', voterId, 'hasVoted:', hasVoted(ticket));
 		if (hasVoted(ticket)) {
 			try {
-				console.log('[vote] Removing vote...');
 				await removeVote(ticket.id, voterId);
-				console.log('[vote] Removed vote, loading votes...');
 				await loadVotes();
-				console.log('[vote] Votes after removal:', votes);
 			} catch (e) {
 				error = (e as Error).message || 'Failed to remove vote.';
-				console.error('[vote] Remove vote error:', e);
 			}
 		} else {
 			try {
-				console.log('[vote] Adding vote...');
 				await addVote(ticket.id, voterId);
-				console.log('[vote] Added vote, loading votes...');
 				await loadVotes();
-				console.log('[vote] Votes after add:', votes);
 			} catch (e) {
 				error = (e as Error).message || 'Failed to add vote.';
-				console.error('[vote] Add vote error:', e);
 			}
 		}
 	}
 
 	async function loadVotes() {
 		try {
-			console.log('[vote] Fetching votes...');
 			const newVotes = await fetchVotes();
 			votes = [...newVotes]; // force Svelte reactivity
-			console.log('[vote] Loaded votes (assigned):', votes);
 		} catch (e) {
 			error = (e as Error).message || 'Failed to load votes.';
-			console.error('[vote] Load votes error:', e);
 		}
 	}
 
@@ -117,11 +104,11 @@
 	}
 
 	function startEdit(ticket: Ticket) {
-    if (editingTicketId === ticket.id) return; // Prevent resetting if already editing this ticket
-    editingTicketId = ticket.id;
-    editingTitle = ticket.title;
-    editingContent = ticket.content || '';
-  }
+		if (editingTicketId === ticket.id) return; // Prevent resetting if already editing this ticket
+		editingTicketId = ticket.id;
+		editingTitle = ticket.title;
+		editingContent = ticket.content || '';
+	}
 
 	// Only save when leaving the whole ticket card
 	function handleTicketEditBlur(e: FocusEvent, ticket: Ticket) {
@@ -151,7 +138,6 @@
 				.eq('id', ticket.id);
 			if (updateError) {
 				error = updateError.message;
-				// Optionally: revert optimistic update or show error
 				await refreshTickets();
 			}
 		} else {
@@ -169,33 +155,33 @@
 	}
 
 	async function removeTicket(ticket: Ticket) {
-  // Optimistically remove from UI
-  ticketsByColumn[ticket.column] = ticketsByColumn[ticket.column].filter(t => t.id !== ticket.id);
-  // Remove from Supabase
-  const { error: deleteError } = await supabase.from('tickets').delete().eq('id', ticket.id);
-  if (deleteError) {
-    error = deleteError.message;
-    await refreshTickets();
-  }
-}
+		// Optimistically remove from UI
+		ticketsByColumn[ticket.column] = ticketsByColumn[ticket.column].filter(
+			(t) => t.id !== ticket.id
+		);
+		// Remove from Supabase
+		const { error: deleteError } = await supabase.from('tickets').delete().eq('id', ticket.id);
+		if (deleteError) {
+			error = deleteError.message;
+			await refreshTickets();
+		}
+	}
 
-let votesUnsubscribe: (() => void) | null = null;
+	let votesUnsubscribe: (() => void) | null = null;
 
-onMount(async () => {
-  await refreshTickets();
-  await loadVotes();
-  votesUnsubscribe = subscribeToVotes(() => {
-    console.log('[vote] Realtime update received, reloading votes');
-    loadVotes();
-  });
-});
+	onMount(async () => {
+		await refreshTickets();
+		await loadVotes();
+		votesUnsubscribe = subscribeToVotes(() => {
+			loadVotes();
+		});
+	});
 
-onDestroy(() => {
-  if (votesUnsubscribe) {
-    console.log('[vote] Unsubscribing from votes realtime');
-    votesUnsubscribe();
-  }
-});
+	onDestroy(() => {
+		if (votesUnsubscribe) {
+			votesUnsubscribe();
+		}
+	});
 </script>
 
 {#if loading}
@@ -203,8 +189,7 @@ onDestroy(() => {
 {:else if error}
 	<div style="color:red; text-align:center; padding:2rem;">{error}</div>
 {:else}
-	<div style="font-size:12px; color:#888; margin-bottom: 0.5rem;">[debug] votes array length: {votes.length}</div>
-<div class="board-grid">
+	<div class="board-grid">
 		{#each columns as column}
 			<div class="column">
 				<div class="column-title">{column.title}</div>
@@ -241,7 +226,11 @@ onDestroy(() => {
 										></textarea>
 									</div>
 								{:else}
-									<button class="remove-ticket-btn" aria-label="Remove ticket" on:click={() => removeTicket(ticket)}>&times;</button>
+									<button
+										class="remove-ticket-btn"
+										aria-label="Remove ticket"
+										on:click={() => removeTicket(ticket)}>&times;</button
+									>
 									<div class="ticket-title">{ticket.title}</div>
 									{#if ticket.content}
 										<div class="ticket-content">{ticket.content}</div>
@@ -253,8 +242,12 @@ onDestroy(() => {
 										aria-label="Vote for this ticket"
 										on:click={() => toggleVote(ticket)}
 									>
-										<span class="heart-emoji {getVoteCount(ticket) > 0 ? 'has-votes' : ''}">{getVoteCount(ticket) > 0 ? '❤️' : '🤍'}</span>
-										<span class="vote-count">{getVoteCount(ticket)}</span>
+										<span class="heart-emoji {getVoteCount(ticket) > 0 ? 'has-votes' : ''}"
+											>{getVoteCount(ticket) > 0 ? '❤️' : '🤍'}</span
+										>
+										{#key votes.length}
+											<span class="vote-count">{getVoteCount(ticket)}</span>
+										{/key}
 									</button>
 								</div>
 							</div>
