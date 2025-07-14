@@ -78,20 +78,57 @@ body {
 	color: #3b4252;
 	font-size: uiScale(28);
 	font-weight: 600;
-	box-shadow: 0 2px 8px rgba(60,80,120,0.06);
+	box-shadow: 0 2px 8px rgba(60, 80, 120, 0.06);
 	cursor: pointer;
-	transition: background 0.15s, box-shadow 0.15s;
+	transition:
+		background 0.15s,
+		box-shadow 0.15s;
 }
 
-.add-ticket-btn:hover, .add-ticket-btn:focus {
+.add-ticket-btn:hover,
+.add-ticket-btn:focus {
 	background: #d0d8ee;
-	box-shadow: 0 4px 16px rgba(60,80,120,0.13);
+	box-shadow: 0 4px 16px rgba(60, 80, 120, 0.13);
 	outline: none;
 }
 
+.ticket-card {
+	background: #f2f5fa;
+	position: relative;
+}
+
+.remove-ticket-btn {
+	position: absolute;
+	top: uiScale(8);
+	right: uiScale(8);
+	width: uiScale(22);
+	height: uiScale(22);
+	border: none;
+	background: transparent;
+	color: #b0b4c0;
+	font-size: uiScale(18);
+	font-weight: bold;
+	border-radius: 50%;
+	cursor: pointer;
+	z-index: 2;
+	transition: background 0.12s, color 0.12s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.remove-ticket-btn:hover {
+	background: #e3e9f7;
+	color: #e74c3c;
+}
+
+.ticket-card.editing .remove-ticket-btn {
+	display: none;
+}
 
 .ticket-card {
 	background: #f2f5fa;
+	position: relative;
 	border-radius: uiScale(8);
 	box-shadow: 0 1px 4px rgba(60, 80, 120, 0.06);
 	padding: uiScale(16) uiScale(12);
@@ -106,21 +143,68 @@ body {
 	gap: uiScale(10);
 }
 
-.ticket-card.editing {
-	box-shadow: 0 4px 24px rgba(60,80,120,0.18);
-	border: none;
+
+.ticket-card:not(.editing) {
+	display: flex;
+	align-items: flex-start;
+	gap: uiScale(12);
 }
 
-
 @media (max-width: 600px) {
-	.ticket-card, .ticket-card.editing {
+	.ticket-card:not(.editing) {
 		flex-direction: column;
 		gap: uiScale(8);
 	}
 }
 
+.ticket-title,
+.ticket-title.editing {
+	font-weight: 600;
+	font-size: uiScale(17);
+	margin-bottom: uiScale(6);
+	margin-right: 0;
+	word-break: break-word;
+	color: #222;
+}
 
-.ticket-title, .ticket-title.editing {
+.ticket-content,
+.ticket-content.editing {
+	font-size: uiScale(15);
+	color: #4a5670;
+	white-space: pre-line;
+	word-break: break-word;
+	background: none;
+	border: none;
+	box-shadow: none;
+	font-family: inherit;
+	padding: 0;
+	outline: none;
+	display: inline-block;
+	vertical-align: middle;
+	min-height: 1.5em;
+}
+
+.ticket-edit-wrap textarea.ticket-content.editing {
+	width: 100%;
+	box-sizing: border-box;
+	resize: none;
+}
+
+.ticket-card.editing {
+	box-shadow: 0 4px 24px rgba(60, 80, 120, 0.18);
+	border: none;
+}
+
+@media (max-width: 600px) {
+	.ticket-card,
+	.ticket-card.editing {
+		flex-direction: column;
+		gap: uiScale(8);
+	}
+}
+
+.ticket-title,
+.ticket-title.editing {
 	font-weight: 600;
 	font-size: uiScale(17);
 	margin-bottom: 0;
@@ -136,11 +220,11 @@ body {
 	vertical-align: middle;
 }
 
-.ticket-content, .ticket-content.editing {
+.ticket-content,
+.ticket-content.editing {
 	font-size: uiScale(15);
 	color: #4a5670;
-	margin-top: 0;
-	margin-left: uiScale(12);
+	margin: 0;
 	white-space: pre-line;
 	word-break: break-word;
 	background: none;
@@ -151,21 +235,14 @@ body {
 	outline: none;
 	display: inline-block;
 	vertical-align: middle;
-	resize: none;
+	min-height: 1.5em;
 }
-@media (max-width: 600px) {
-	.ticket-content, .ticket-content.editing {
-		margin-left: 0;
-	}
-}
-
 
 .ticket-title.editing::placeholder,
 .ticket-content.editing::placeholder {
 	color: #444;
 	opacity: 1;
 }
-
 
 .add-ticket-form {
 	display: flex;
@@ -176,10 +253,11 @@ body {
 	padding: uiScale(12);
 	background: #f9fbfd;
 	border-radius: uiScale(8);
-	box-shadow: 0 1px 6px rgba(60,80,120,0.05);
+	box-shadow: 0 1px 6px rgba(60, 80, 120, 0.05);
 }
 
-.add-ticket-title, .add-ticket-content {
+.add-ticket-title,
+.add-ticket-content {
 	width: 100%;
 	padding: 0;
 	border: none;
@@ -193,15 +271,13 @@ body {
 	outline: none;
 }
 
-
-.add-ticket-title:focus, .add-ticket-content:focus {
+.add-ticket-title:focus,
+.add-ticket-content:focus {
 	outline: none !important;
 	box-shadow: none !important;
 	border: none !important;
 	background: none;
 }
-
-
 
 .add-ticket-actions {
 	display: flex;
@@ -239,4 +315,3 @@ body {
 .add-ticket-cancel:hover {
 	background: #e3e9f7;
 }
-
