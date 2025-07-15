@@ -35,6 +35,12 @@ body {
 	max-width: uiScale(1200);
 	margin: 0 auto;
 	margin-top: uiScale(50);
+	
+	// Media query for screens smaller than 900px
+	@media (max-width: 900px) {
+		grid-template-columns: 1fr; // Single column
+		gap: uiScale(48); // Increased vertical gap between columns
+	}
 }
 
 .column {
@@ -48,6 +54,19 @@ body {
 	background: none;
 	border: none;
 	box-shadow: none;
+	
+	// For mobile view, add visual separation between columns
+	@media (max-width: 900px) {
+		padding-bottom: uiScale(24);
+		margin-bottom: uiScale(24);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+		
+		// Remove bottom border from last column
+		&:last-child {
+			border-bottom: none;
+			margin-bottom: 0;
+		}
+	}
 }
 
 .column-title {
@@ -56,6 +75,15 @@ body {
 	margin: 1rem;
 	letter-spacing: 0.01em;
 	color: #3b4252;
+	
+	// Make column title more prominent on mobile
+	@media (max-width: 900px) {
+		font-size: uiScale(24); // Slightly larger font
+		padding-bottom: uiScale(8);
+		border-bottom: 2px solid #3b4252;
+		margin-bottom: uiScale(16);
+		display: inline-block; // To make the border only as wide as the text
+	}
 }
 
 .tickets-list {

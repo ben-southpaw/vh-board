@@ -7,6 +7,7 @@
 	import { fetchVotes, addVote, removeVote, subscribeToVotes, type Vote } from '../lib/votesApi';
 
 	const columns = [{ title: 'Good' }, { title: 'Bad' }, { title: 'Actions' }, { title: 'Ideas' }];
+    //improvement dynamic or via supabase db
 
 	let ticketsByColumn: Record<string, Ticket[]> = {};
 	let loading = true;
@@ -56,7 +57,8 @@
 			}
 		}
 	}
-
+    
+    //improvement, this is a roundabout way to get real time votes but works
 	async function loadVotes() {
 		try {
 			const newVotes = await fetchVotes();
@@ -110,28 +112,28 @@
 	}
 
 	function startEdit(ticket: Ticket) {
-		if (editingTicketId === ticket.id) return; // Prevent resetting if already editing this ticket
+        // Avodi reset if editing ticket (double click issue)
+		if (editingTicketId === ticket.id) return; 
 		editingTicketId = ticket.id;
 		editingTitle = ticket.title;
 		editingContent = ticket.content || '';
 	}
 
-	// Only save when leaving the whole ticket card
+	// save when leaving the ticket
 	function handleTicketEditBlur(e: FocusEvent, ticket: Ticket) {
 		const related = e.relatedTarget as HTMLElement | null;
-		// If focus is moving to another element inside ticket-edit-wrap, do not save
 		if (related && e.currentTarget && (e.currentTarget as HTMLElement).contains(related)) {
 			return;
 		}
 		saveEdit(ticket);
 	}
 
-	// Optimistic UI update: update UI immediately, then sync with Supabase
+	// Optimistic UI update: update UI then sync with Supabase
 	async function saveEdit(ticket: Ticket) {
 		if (!editingTicketId) return;
-		// Only save if changed
+		// save if changed
 		if (editingTitle !== ticket.title || editingContent !== (ticket.content || '')) {
-			// Optimistically update UI
+			// Optimistic update UI
 			const updatedTicket = { ...ticket, title: editingTitle, content: editingContent };
 			ticketsByColumn[ticket.column] = ticketsByColumn[ticket.column].map((t) =>
 				t.id === ticket.id ? updatedTicket : t
@@ -161,7 +163,7 @@
 	}
 
 	async function removeTicket(ticket: Ticket) {
-		// Optimistically remove from UI
+		// remove from UI
 		ticketsByColumn[ticket.column] = ticketsByColumn[ticket.column].filter(
 			(t) => t.id !== ticket.id
 		);
